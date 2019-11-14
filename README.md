@@ -1,7 +1,8 @@
 # Sterowanie Magazynem
 
 ## Prerequisites
-
+ * Anaconda
+ https://www.anaconda.com/distribution/
  * github
  * git lfs
  
