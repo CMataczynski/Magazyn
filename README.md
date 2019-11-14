@@ -2,6 +2,7 @@
 
 ## Prerequisites
  * Anaconda
+ 
  https://www.anaconda.com/distribution/
  * github
  * git lfs
@@ -66,3 +67,11 @@ And open your browser to go to the
 ```
 http://localhost:3000/
 ```
+
+## Editing the files:
+
+For meteor app developement i recommend the ATOM application:
+
+https://atom.io/
+
+For the python both jupyter-notebook for low-level developement and Pycharm for high-level one
