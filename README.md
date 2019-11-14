@@ -1,5 +1,20 @@
 # Sterowanie Magazynem
 
+## Prerequisites
+ * Anaconda
+ 
+ https://www.anaconda.com/distribution/
+ * github
+ * git lfs
+ 
+ https://git-lfs.github.com/
+
+To download the repository use the github bash in the location you want the project
+```
+git clone https://github.com/MaczekO/Magazyn.git projectfolder
+```
+
+
 ## Installation:
   * Python v. 3.7.4
     ```
@@ -25,10 +40,12 @@
      ```
      choco install meteor
      ```
-     Restart the command line andf go to the projectPath/meteor and create the project
+     Restart the command line andf go to the projectPath/meteor and cut the front folder to other location, then with create the project
      ```
+     cd projectPath/meteor
      meteor create front
      ```
+     and then copy the files from the repository into the created front folder
      
     * Meteor packages
     
@@ -50,3 +67,11 @@ And open your browser to go to the
 ```
 http://localhost:3000/
 ```
+
+## Editing the files:
+
+For meteor app developement i recommend the ATOM application:
+
+https://atom.io/
+
+For the python both jupyter-notebook for low-level developement and Pycharm for high-level one
