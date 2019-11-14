@@ -1,5 +1,18 @@
 # Sterowanie Magazynem
 
+## Prerequisites
+
+ * github
+ * git lfs
+ 
+ https://git-lfs.github.com/
+
+To download the repository use the github bash in the location you want the project
+```
+git clone https://github.com/MaczekO/Magazyn.git projectfolder
+```
+
+
 ## Installation:
   * Python v. 3.7.4
     ```
