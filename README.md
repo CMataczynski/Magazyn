@@ -39,10 +39,12 @@ git clone https://github.com/MaczekO/Magazyn.git projectfolder
      ```
      choco install meteor
      ```
-     Restart the command line andf go to the projectPath/meteor and create the project
+     Restart the command line andf go to the projectPath/meteor and cut the front folder to other location, then with create the project
      ```
+     cd projectPath/meteor
      meteor create front
      ```
+     and then copy the files from the repository into the created front folder
      
     * Meteor packages
     
