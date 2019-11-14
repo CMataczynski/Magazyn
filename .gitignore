@@ -1,2 +1,4 @@
 meteor/front/.meteor/
 meteor/front/node_modules/
+meteor/front/package.json
+meteor/front/package-lock.json
