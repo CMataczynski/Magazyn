@@ -1,8 +1,0 @@
-body {
-  padding: 0 auto;
-  margin: 0 auto;
-  overflow: auto;
-  font-family: sans-serif;
-}
-#main-row { display: flex;
-height: 100%}
