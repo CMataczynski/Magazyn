@@ -1,0 +1,17 @@
+.banner {
+    height: 60px;
+    margin: 0px -5px 10px;
+    background-color: rgb(145, 16, 16);
+    border-radius: 2px;
+}
+
+.banner h2{
+    color: white;
+    padding-top: 2px;
+    margin-left: 2%;
+    display: inline-block;
+}
+
+.image {
+    margin-left: 50%;
+}
