@@ -8,9 +8,11 @@ from Draw_trace import draw_trace
 import plotly.express as px
 from PIL import Image
 import numpy as np
+from dash.dependencies import Input, Output
 
+
+path = []
 img2graphdict = load("assets\\graf2img.txt")
-path = [1,2,3,4,14,24,25,26,27,37,47,48,49,59]
 
 
 image = Image.open("assets/def.jpg")
@@ -19,13 +21,6 @@ fig.update_xaxes(showticklabels=False)
 fig.update_yaxes(showticklabels=False)
 
 
-# wyświetlanie wszystkich punktów
-# fig.add_trace(go.Scatter(
-#     x=[a[0] for a in img2graphdict.values()],
-#     y=[a[1] for a in img2graphdict.values()],
-#     mode="markers",
-#     hovertext=[str(a) for a in img2graphdict.keys()]
-#   ))
 
 fig.add_scatter(
     x=[],
@@ -57,11 +52,38 @@ app.layout = html.Div([
             figure=fig
         )
     ], className='image'),
+
+
+    dcc.Dropdown(
+        id='dropdown',
+        options=[
+            {'label': 'Order1', 'value': 'Order1'},
+            {'label': 'Order2', 'value': 'Order2'},
+            {'label': 'Order3', 'value': 'Order3'},
+            {'label': 'Order4', 'value': 'Order4'},
+            {'label': 'Order5', 'value': 'Order5'}
+        ], className='dropdown'),
+    html.Div(id='output')
 ])
 
-app.css.append_css({
-    "external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"
-})
+
+@app.callback(
+    Output('map', 'figure'),
+    [dash.dependencies.Input('dropdown', 'value')])
+def update_figure(value):
+    path=[]
+    if value=='Order1':
+        path = [1,2,3,4,14,24,25,26]
+    if value=='Order2':
+        path=[35,45,55,56]
+    draw_trace(path,fig,img2graphdict)
+    return fig
+
+
+
+
+
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
