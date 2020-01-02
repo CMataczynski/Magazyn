@@ -1,3 +1,4 @@
 orders.csv filter=lfs diff=lfs merge=lfs -text
 products.csv filter=lfs diff=lfs merge=lfs -text
 resources.csv filter=lfs diff=lfs merge=lfs -text
+final.json filter=lfs diff=lfs merge=lfs -text

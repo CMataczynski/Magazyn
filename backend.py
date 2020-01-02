@@ -5,11 +5,23 @@ import random
 import threading
 from pathlib import Path
 
+import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import networkx as nx
 import pandas as pd
 from PIL import Image
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return super(NpEncoder, self).default(obj)
 
 
 class AnnealLoss(threading.Thread):
@@ -20,10 +32,10 @@ class AnnealLoss(threading.Thread):
         self.pi = pi
 
     def run(self):
-        print("Starting annealing in mode {}".format(self.mode))
+        #print("Starting annealing in mode {}".format(self.mode))
         loss = self.optimizer.func_cel(self.pi, mode=self.mode)
         self.optimizer.set_loss(loss, self.mode)
-        print("Exited annealing in mode {}".format(self.mode))
+        #print("Exited annealing in mode {}".format(self.mode))
 
 
 # optimal_path = self.path_optim.anneal(t0, tk, nodes, whole_pi_func)
@@ -38,22 +50,23 @@ class InnerLoss(threading.Thread):
         self.mode = mode
 
     def run(self):
-        optimal_path = self.optimizer.path_optim.anneal(1000, 900, self.nodes, self.whole_pi_func)
+        optimal_path = self.optimizer.path_optim.anneal(1000, 800, self.nodes, self.whole_pi_func)
         optimal_path = self.optimizer.get_full_path(optimal_path)
         cost = self.optimizer.get_path_length(optimal_path)
         self.optimizer.add_cost(cost, mode=self.mode)
-        print("Exited inner annealing in mode {}".format(self.mode))
+        #print("Exited inner annealing in mode {}".format(self.mode))
 
 class PathOptimizer:
-    def __init__(self, graph):
+    def __init__(self, graph, path_dict):
         self.graph = graph
+        self.path_dict = path_dict
         self.get_whole_pi = None
 
     def func_cel(self, pi):
         pi_whole = self.get_whole_pi(pi)
         cost = 0
         for i in range(len(pi_whole) - 1):
-            cost += self.get_path_length(nx.astar_path(self.graph, pi_whole[i], pi_whole[i + 1]))
+            cost += self.path_dict[pi_whole[i]][0][pi_whole[i+1]]
         return cost
 
     def choose_random_neighb(self, pi, mode='interchange'):
@@ -118,12 +131,13 @@ class Optimizer:
         self.data_path = Path("data")
         self.orders_mapping = self.load_mapping(self.data_path.joinpath("order2graf.txt"))
         self.graph = self.load_graph(self.data_path.joinpath("Graf.txt"))
+        self.path_lengths = dict(nx.all_pairs_dijkstra(self.graph))
         self.img2graphdict = self.load_img2graphdict(self.data_path.joinpath("graf2img.txt"))
         self.orders = self.load_orders(self.data_path.joinpath("orders.csv"))
         self.resources = self.load_resources(self.data_path.joinpath("resources.csv"))
         self.starting_pi = self.get_starting_pi()
         self.img = Image.open(self.data_path.joinpath("def.jpg"))
-        self.path_optim = PathOptimizer(self.graph)
+        self.path_optim = PathOptimizer(self.graph, self.path_lengths)
 
         self.loss = None
         self.loss_pi = None
@@ -211,9 +225,9 @@ class Optimizer:
         full_path = []
         for i in range(len(solution) - 1):
             if len(full_path) != 0:
-                full_path += nx.astar_path(self.graph, solution[i], solution[i + 1])[1:]
+                full_path += self.path_lengths[solution[i]][1][solution[i+1]][1:]
             else:
-                full_path += nx.astar_path(self.graph, solution[i], solution[i + 1])
+                full_path += self.path_lengths[solution[i]][1][solution[i+1]]
         return full_path
 
     def draw_solution(self, solution):
@@ -272,6 +286,8 @@ class Optimizer:
             if order != 0:
                 order_stack.append(order)
             else:
+                #if len(order_stack) != 5:
+                #    print(pi)
                 nodes, postals = self.orders_to_graph(order_stack)
                 whole_pi_func = lambda x: self.get_whole_route(x, postals)
                 # t0 = 1000
@@ -305,20 +321,31 @@ class Optimizer:
             return self.cost_pi
 
     def choose_random_neighb(self, pi, mode='interchange'):
-        zeroes = pi.count(0)
+        zeroes = pi.count(0)-1
         pi_new = copy.deepcopy(pi)
         pi_len = len(pi) - zeroes
         if mode == 'interchange':
-            idx1, idx2 = random.choices(range(pi_len), k=2)
-            idx1 = idx1 + int(pi_len / 5)
-            idx2 = idx2 + int(pi_len / 5)
+            group_idx1, group_idx2 = random.choices(range(zeroes), k=2)
+            idx1 = random.randint(0, 4)
+            idx2 = random.randint(0, 4)
+            idx1 = idx1 + 6*group_idx1 + 1
+            idx2 = idx2 + 6*group_idx2 + 1
+
+            if idx1 >= len(pi_new):
+                idx1 = len(pi_new)-1
+            if idx2 >= len(pi_new):
+                idx2 = len(pi_new)-1
+
             temp = pi_new[idx1]
+            #print("{} ({}) < - > {} ({})(".format(temp, idx1, pi_new[idx2], idx2))
+            #if temp == 0 or pi_new == 0:
+            #    print(pi_new)
             pi_new[idx1] = pi_new[idx2]
             pi_new[idx2] = temp
         if mode == 'insert':
             idx1, idx2 = random.choices(range(pi_len), k=2)
-            idx1 = idx1 + int(pi_len / 5)
-            idx2 = idx2 + int(pi_len / 5)
+            idx1 = idx1 + int(idx1 / 5) + 1
+            idx2 = idx2 + int(idx2 / 5) + 1
             pi_new.insert(idx1, pi_new[idx2])
             if idx2 > idx1:
                 pi_new.pop(idx2 + 1)
@@ -346,22 +373,29 @@ class Optimizer:
         calculate_loss_prim = True
         calculate_loss_pi = True
         while (T >= Tk):
+            #print(pi)
             pi_prim = random_neighb(pi)
+            #print(pi_prim)
+            #input()
             calculate_loss_prim = True
-            thread_1 = AnnealLoss(self, pi_star, 2)
-            thread_2 = AnnealLoss(self, pi_prim, 3)
-            thread_3 = AnnealLoss(self, pi, 4)
             if calculate_loss:
+                thread_1 = AnnealLoss(self, pi_star, 2)
                 # self.loss = func_cel(pi_star)
                 thread_1.start()
             if calculate_loss_prim:
+                thread_2 = AnnealLoss(self, pi_prim, 3)
                 thread_2.start()
             if calculate_loss_pi:
+                thread_3 = AnnealLoss(self, pi, 4)
                 thread_3.start()
 
-            thread_1.join()
-            thread_2.join()
-            thread_3.join()
+            if calculate_loss:
+                # self.loss = func_cel(pi_star)
+                thread_1.join()
+            if calculate_loss_prim:
+                thread_2.join()
+            if calculate_loss_pi:
+                thread_3.join()
 
             calculate_loss = False
             calculate_loss_prim = False
@@ -369,17 +403,17 @@ class Optimizer:
 
             if self.loss_prim < self.loss:
                 pi_star = copy.deepcopy(pi_prim)
-                calculate_loss = True
+                self.loss = self.loss_prim
             if self.loss_prim <= self.loss_pi:
                 pi = copy.deepcopy(pi_prim)
-                calculate_loss_pi = True
+                self.loss_pi = self.loss_prim
             else:
                 delta = self.loss_prim - self.loss_pi
                 p = math.exp(-delta / T)
                 z = random.random()
                 if z <= p:
                     pi = copy.deepcopy(pi_prim)
-                    calculate_loss_pi = True
+                    self.loss_pi = self.loss_prim
             if printing:
                 print("{}: {}".format(T, self.loss))
 
@@ -390,9 +424,10 @@ class Optimizer:
                 steps += 1
             else:
                 steps = 0
-            if steps >= early_stopping:
-                break
-            self.loss_prev = self.loss
+            if early_stopping:
+                if steps >= early_stopping:
+                    break
+                self.loss_prev = self.loss
             T = lam * T
         return pi_star
 
@@ -444,10 +479,10 @@ class Optimizer:
         return nodes_dict
 
     def optimize(self):
-        optimal = self.anneal(1000, 500, self.starting_pi)
+        optimal = self.anneal(10000, 60000, self.starting_pi,early_stopping=0)
         order_stack = []
         output_list = []
-        for order in optimal:
+        for order in optimal[1:]:
             if order != 0:
                 order_stack.append(order)
             else:
@@ -476,6 +511,11 @@ class Optimizer:
         return output_list
 
 
+
+
 if __name__ == "__main__":
     optimizer = Optimizer()
     output = optimizer.optimize()
+    output_dict = {"results":output}
+    with open("final.json", "w") as file:
+        json.dump(output_dict, file, cls=NpEncoder)
