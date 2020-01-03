@@ -1,15 +1,17 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly.graph_objects as go
-import dash_auth
 from load_img2graphdict import load_img2graphdict as load
 from Draw_trace import draw_trace
 import plotly.express as px
 from PIL import Image
-import numpy as np
 from dash.dependencies import Input, Output
 import flask
+import dash_table
+import pandas as pd
+
+
+df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
 
 app = dash.Dash(__name__)
 path = []
@@ -96,12 +98,24 @@ app.layout = html.Div([
 
 
     html.Div([
-        dcc.Graph(
-            id='map',
-            figure=fig
-        )
-    ], className='image')
 
+        html.Div([
+            dash_table.DataTable(
+                id='table',
+                columns=[{'id': 'Item', 'name': 'Item'},
+ {'id': 'Amount', 'name': 'Amount'},
+ {'id': 'Place', 'name': 'Place'},
+ {'id': 'Order', 'name': 'Order'}],
+            )
+        ], className='table'),
+
+        html.Div([
+            dcc.Graph(
+                id='map',
+                figure=fig
+            )
+        ], className='image'),
+    ], className='Data')
 ])
 
 @app.callback(Output('custom-auth-frame', 'children'),
@@ -123,7 +137,7 @@ def dynamic_layout(_):
 def update_figure(value):
     path=[]
     if value=='Order1':
-        path = [1,2,3,4,14,24,25,26]
+        path=[116, 144, 177, 178, 172, 56, 34, 75]
     if value=='Order2':
         path=[35,45,55,56]
     draw_trace(path,fig,img2graphdict)
