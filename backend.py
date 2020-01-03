@@ -481,7 +481,13 @@ class Optimizer:
     def optimize(self):
         optimal = self.anneal(10000, 60000, self.starting_pi,early_stopping=0)
         order_stack = []
-        output_list = []
+        output_dict = {
+            1: [],
+            2: [],
+            3: [],
+            4: [],
+            5: [],
+        }
         max_workers = 5
         i = 0
         for order in optimal[1:]:
@@ -493,8 +499,7 @@ class Optimizer:
                 t0 = 1000
                 tk = 700
                 optimal_path = self.path_optim.anneal(t0, tk, nodes, whole_pi_func)
-                output_list.append({
-                    "worker_id": i+1,
+                output_dict[i+1].append({
                     "orders_ids": order_stack,
                     "optimal_nodes_list": optimal_path,
                     "optimal_route": self.get_full_path(optimal_path),
@@ -509,14 +514,14 @@ class Optimizer:
             t0 = 1000
             tk = 700
             optimal_path = self.path_optim.anneal(t0, tk, nodes, whole_pi_func)
-            output_list.append({
-                "worker_id": i+1,
+            output_dict[i+1].append({
                 "orders_ids": order_stack,
                 "optimal_nodes_list": optimal_path,
                 "optimal_route": self.get_full_path(optimal_path),
                 "node_dict": self.get_orders_node_dict(order_stack)
             })
-        return output_list
+
+        return output_dict
 
 
 
@@ -524,6 +529,5 @@ class Optimizer:
 if __name__ == "__main__":
     optimizer = Optimizer()
     output = optimizer.optimize()
-    output_dict = {"results":output}
-    with open("final.json", "w") as file:
-        json.dump(output_dict, file, cls=NpEncoder)
+    with open("final_dict.json", "w") as file:
+        json.dump(output, file, cls=NpEncoder)
