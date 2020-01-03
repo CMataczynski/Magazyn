@@ -482,6 +482,8 @@ class Optimizer:
         optimal = self.anneal(10000, 60000, self.starting_pi,early_stopping=0)
         order_stack = []
         output_list = []
+        max_workers = 5
+        i = 0
         for order in optimal[1:]:
             if order != 0:
                 order_stack.append(order)
@@ -492,10 +494,14 @@ class Optimizer:
                 tk = 700
                 optimal_path = self.path_optim.anneal(t0, tk, nodes, whole_pi_func)
                 output_list.append({
+                    "worker_id": i+1,
                     "orders_ids": order_stack,
-                    "optimal_path": optimal_path,
+                    "optimal_nodes_list": optimal_path,
+                    "optimal_route": self.get_full_path(optimal_path),
                     "node_dict": self.get_orders_node_dict(order_stack)
                 })
+                i += 1
+                i = i % max_workers
                 order_stack = []
         if len(order_stack) != 0:
             nodes, postals = self.orders_to_graph(order_stack)
@@ -504,8 +510,10 @@ class Optimizer:
             tk = 700
             optimal_path = self.path_optim.anneal(t0, tk, nodes, whole_pi_func)
             output_list.append({
+                "worker_id": i+1,
                 "orders_ids": order_stack,
-                "optimal_path": optimal_path,
+                "optimal_nodes_list": optimal_path,
+                "optimal_route": self.get_full_path(optimal_path),
                 "node_dict": self.get_orders_node_dict(order_stack)
             })
         return output_list
