@@ -1,48 +1,70 @@
+* {
+    margin:0 ;
+    padding: 0;
+}
+
+
 .banner {
-    height: 60px;
-    margin: 0px -5px 10px;
+    height: 30px;
     background-color: rgb(145, 16, 16);
     border-radius: 2px;
+    padding:10px;
+    position: relative;
+    overflow:hidden;
 }
 .banner h2{
-    color: white;
-    padding-top: 2px;
-    margin-left: 2%;
-    display: inline-block;
+float:left;
+color:white;
 }
 .banner H3 {
-    position: relative;
-    float: right;
-    right: 10px;
-    height: 75px;
+float:right;
+
 }
 .logout_button{
     position: relative;
     float:right;
     bottom:15px;
     right:10px;
-    height:100px;
+    height:100px
 }
+
+.dash-logout-btn {
+    margin-top: 5px;
+    background-color: darkred;
+    border: none;
+}
+
+.dash-logout-btn:hover {
+    background-color: brown;
+    border:none;
+}
+
 .image {
-    margin-left: 50%;
-    display:inline-block;
-    float:right;
-    vertical-align:top;
+    float:left;
+    width:50%;
 }
 .Dropdowns{
-    width:30%;
+    width:50%;
     display:inline-block;
+    margin-top:30px;
 }
 .dropdown1 {
     width:50%;
     display: block;
-    vertical-align: top;
+    float:left;
 }
 .dropdown2 {
-    position:relative;
     width:50%;
     display: block;
-    vertical-align: top;
     float: left;
-    left:250px;
+}
+.table {
+    padding-top: 60px;
+    float:left;
+    width: 50%;
+}
+.Data{
+    width:95%;
+    padding-left: 10px;
+    /*padding-right: 10px;*/
 }
