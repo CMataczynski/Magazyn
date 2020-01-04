@@ -8,10 +8,11 @@ from PIL import Image
 from dash.dependencies import Input, Output
 import flask
 import dash_table
-import pandas as pd
+import json
 
 
-df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
+with open('assets/final_dict.json', 'r') as f:
+    display_dict = json.load(f)
 
 app = dash.Dash(__name__)
 path = []
@@ -30,6 +31,7 @@ fig.add_scatter(
     mode="lines+markers"
   )
 
+data=[]
 draw_trace(path,fig,img2graphdict)
 
 
@@ -41,9 +43,6 @@ def route_login():
     data = flask.request.form
     username = data.get('username')
     password = data.get('password')
-
-    if username=="User1" and password=="User1":
-        User=username
 
     rep = flask.redirect(_app_route)
     rep.set_cookie('custom-auth-session', username)
@@ -67,6 +66,14 @@ login_form = html.Div([
     ], action='/custom-auth/login', method='post')
 ])
 
+users = {
+    'User1': 1,
+    'User2': 2,
+    'User3': 3,
+    'User4': 4,
+    'User5': 5
+}
+
 
 app.layout = html.Div([
     html.Div([
@@ -77,37 +84,35 @@ app.layout = html.Div([
     html.Div([
         dcc.Dropdown(
             id='dropdown_user',
-            options=[
-                {'label': 'User1', 'value': 'User1'},
-                {'label': 'User2', 'value': 'User2'},
-                {'label': 'User3', 'value': 'User3'},
-                {'label': 'User4', 'value': 'User4'},
-                {'label': 'User5', 'value': 'User5'}
-            ], className='dropdown1'),
+            options = [],
+            className='dropdown1'),
         dcc.Dropdown(
             id='dropdown_order',
             options=[
-                {'label': 'Order1', 'value': 'Order1'},
-                {'label': 'Order2', 'value': 'Order2'},
-                {'label': 'Order3', 'value': 'Order3'},
-                {'label': 'Order4', 'value': 'Order4'},
-                {'label': 'Order5', 'value': 'Order5'}
-            ], className='dropdown2'),
-        html.Div(id='output'),
+                {'label': 'Order1', 'value': 0},
+                {'label': 'Order2', 'value': 1},
+                {'label': 'Order3', 'value': 2},
+                {'label': 'Order4', 'value': 3},
+                {'label': 'Order5', 'value': 4},
+                {'label': 'Order6', 'value': 5}
+            ],
+            value=1,
+            className='dropdown2'),
     ], className="Dropdowns"),
 
-
     html.Div([
-
         html.Div([
             dash_table.DataTable(
                 id='table',
                 columns=[{'id': 'Item', 'name': 'Item'},
- {'id': 'Amount', 'name': 'Amount'},
- {'id': 'Place', 'name': 'Place'},
- {'id': 'Order', 'name': 'Order'}],
-            )
-        ], className='table'),
+                        {'id': "Location", 'name': "Location"},
+                        {'id': "Delivery", 'name': "Delivery"},
+                        {'id': "Order", 'name': "Order"},
+                        {'id': "Nod_number", 'name': "Nod_number"},
+                         ],
+                data=data
+                )
+            ], className='table'),
 
         html.Div([
             dcc.Graph(
@@ -117,6 +122,40 @@ app.layout = html.Div([
         ], className='image'),
     ], className='Data')
 ])
+
+@app.callback(Output('dropdown_user', 'options'),
+              [Input('custom-auth-frame', 'id')])
+def update_dropdown(_):
+    session_cookie = flask.request.cookies.get('custom-auth-session')
+
+    if not session_cookie:
+        options = []
+        return options
+    else:
+        if session_cookie == 'User1':
+            options = [
+                {'label': 'User1', 'value': '1'}]
+        if session_cookie == 'User2':
+            options = [
+                {'label': 'User2', 'value': '2'}]
+        if session_cookie == 'User3':
+            options = [
+                {'label': 'User3', 'value': '3'}]
+        if session_cookie == 'User4':
+            options = [
+                {'label': 'User4', 'value': '4'}]
+        if session_cookie == 'User5':
+            options = [
+                {'label': 'User5', 'value': '5'}]
+        if session_cookie == 'Admin':
+            options = [
+                {'label': 'User1', 'value': '1'},
+                {'label': 'User2', 'value': '2'},
+                {'label': 'User3', 'value': '3'},
+                {'label': 'User4', 'value': '4'},
+                {'label': 'User5', 'value': '5'}
+                ]
+        return options
 
 @app.callback(Output('custom-auth-frame', 'children'),
               [Input('custom-auth-frame', 'id')])
@@ -133,16 +172,46 @@ def dynamic_layout(_):
 
 @app.callback(
     Output('map', 'figure'),
-    [dash.dependencies.Input('dropdown_order', 'value')])
-def update_figure(value):
-    path=[]
-    if value=='Order1':
-        path=[116, 144, 177, 178, 172, 56, 34, 75]
-    if value=='Order2':
-        path=[35,45,55,56]
-    draw_trace(path,fig,img2graphdict)
-    return fig
+    [dash.dependencies.Input('dropdown_user', 'value'),
+        dash.dependencies.Input('dropdown_order', 'value')
+     ])
+def update_figure(value1, value2):
+    if not value1:
+        path=[]
+        draw_trace(path, fig, img2graphdict)
+        return fig
+    else:
+        path = display_dict[str(value1)][value2]['optimal_route']
+        draw_trace(path, fig, img2graphdict)
+        return fig
 
+
+@app.callback(
+    Output('table', 'data'),
+    [dash.dependencies.Input('dropdown_user', 'value'),
+        dash.dependencies.Input('dropdown_order', 'value')
+     ])
+def update_table(value1, value2):
+    if not value1:
+        data = []
+        return data
+    dicto = display_dict[str(value1)][value2]["node_dict"]
+    for key_node, node in dicto.items():
+        if not isinstance(node, list):
+            dicto[key_node] = [node]
+    data = [{"Item": item["item"]["product_name"],
+      "Location": item["location"],
+      "Order": item["order_id"],
+      "Nod_number": key_node,
+      "Delivery": item["delivery_option"]
+      } for key_node, node in dicto.items() for single in node for id, item in single.items()]
+    data1 = []
+    for i in range(len(data)):
+        for nods in data:
+            if str(nods['Nod_number']) == str(display_dict['1'][1]['optimal_nodes_list'][i]):
+                data1.append(nods)
+
+    return data1
 
 if __name__ == '__main__':
     app.run_server(debug=True)
