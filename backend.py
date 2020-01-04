@@ -502,7 +502,7 @@ class Optimizer:
                 output_dict[i+1].append({
                     "orders_ids": order_stack,
                     "optimal_nodes_list": optimal_path,
-                    "optimal_route": self.get_full_path(optimal_path),
+                    "optimal_route": self.get_full_path(self.get_whole_route(optimal_path, postals)),
                     "node_dict": self.get_orders_node_dict(order_stack)
                 })
                 i += 1
@@ -517,7 +517,7 @@ class Optimizer:
             output_dict[i+1].append({
                 "orders_ids": order_stack,
                 "optimal_nodes_list": optimal_path,
-                "optimal_route": self.get_full_path(optimal_path),
+                "optimal_route": self.get_full_path(self.get_whole_route(optimal_path, postals)),
                 "node_dict": self.get_orders_node_dict(order_stack)
             })
 
