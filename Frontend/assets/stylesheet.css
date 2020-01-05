@@ -29,7 +29,7 @@ float:right;
 
 .dash-logout-btn {
     margin-top: 5px;
-    background-color: darkred;
+    background-color: rgb(145, 16, 16);
     border: none;
 }
 
@@ -40,7 +40,7 @@ float:right;
 
 .image {
     float:left;
-    width:30%;
+    width:40%;
 }
 .Dropdowns{
     width:50%;

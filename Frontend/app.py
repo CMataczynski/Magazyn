@@ -37,6 +37,7 @@ draw_trace(path,fig,img2graphdict)
 
 _app_route = '/dash-core-components/logoutbutton'
 
+
 @app.server.route('/custom-auth/login', methods=['POST'])
 # Create a login route
 def route_login():
@@ -48,7 +49,6 @@ def route_login():
     rep.set_cookie('custom-auth-session', username)
     return rep
 
-# create a logout route
 @app.server.route('/custom-auth/logout', methods=['POST'])
 def route_logout():
     # Redirect back to the index and remove the session cookie.
@@ -66,15 +66,6 @@ login_form = html.Div([
     ], action='/custom-auth/login', method='post')
 ])
 
-users = {
-    'User1': 1,
-    'User2': 2,
-    'User3': 3,
-    'User4': 4,
-    'User5': 5
-}
-
-
 app.layout = html.Div([
     html.Div([
         html.H2("System optymalizacji zamówień w magazynie"),
@@ -84,7 +75,7 @@ app.layout = html.Div([
     html.Div([
         dcc.Dropdown(
             id='dropdown_user',
-            options = [],
+            options=[],
             className='dropdown1'),
         dcc.Dropdown(
             id='dropdown_order',
@@ -104,13 +95,14 @@ app.layout = html.Div([
         html.Div([
             dash_table.DataTable(
                 id='table',
-                columns=[{'id': 'Item', 'name': 'Item'},
-                        {'id': "Location", 'name': "Location"},
-                        {'id': "Delivery", 'name': "Delivery"},
-                        {'id': "Order", 'name': "Order"},
-                        {'id': "Nod_number", 'name': "Nod_number"},
+                columns=[
+                    {'id': 'Item', 'name': 'Item'},
+                    {'id': "Location", 'name': "Location"},
+                    {'id': "Delivery", 'name': "Delivery"},
+                    {'id': "Order", 'name': "Order"},
+                    {'id': "Nod_number", 'name': "Nod_number"},
                          ],
-                data=data
+                data=data,
                 )
             ], className='table'),
 
@@ -177,7 +169,7 @@ def dynamic_layout(_):
      ])
 def update_figure(value1, value2):
     if not value1:
-        path=[]
+        path = []
         draw_trace(path, fig, img2graphdict)
         return fig
     else:
@@ -195,23 +187,24 @@ def update_table(value1, value2):
     if not value1:
         data = []
         return data
-    dicto = display_dict[str(value1)][value2]["node_dict"]
-    for key_node, node in dicto.items():
+    dictionary = display_dict[str(value1)][value2]["node_dict"]
+    for key_node, node in dictionary.items():
         if not isinstance(node, list):
-            dicto[key_node] = [node]
-    data = [{"Item": item["item"]["product_name"],
-      "Location": item["location"],
-      "Order": item["order_id"],
-      "Nod_number": key_node,
-      "Delivery": item["delivery_option"]
-      } for key_node, node in dicto.items() for single in node for id, item in single.items()]
+            dictionary[key_node] = [node]
+    data = [
+        {"Item": item["item"]["product_name"],
+            "Location": item["location"],
+            "Order": item["order_id"],
+            "Nod_number": key_node,
+            "Delivery": item["delivery_option"]
+         } for key_node, node in dictionary.items() for single in node for id, item in single.items()]
     data1 = []
-    for i in range(len(data)):
+    for i in range(len(display_dict[value1][value2]['optimal_nodes_list'])):
         for nods in data:
-            if str(nods['Nod_number']) == str(display_dict['1'][1]['optimal_nodes_list'][i]):
+            if str(nods['Nod_number']) == str(display_dict[value1][value2]['optimal_nodes_list'][i]):
                 data1.append(nods)
-
     return data1
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
