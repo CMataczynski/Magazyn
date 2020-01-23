@@ -16,18 +16,25 @@ git clone https://github.com/MaczekO/Magazyn.git projectfolder
 
 
 ## Installation:
-  * Python v. 3.7.4
+  * Python v. 3.7.4 /w environment. run Anaconda prompt in project location then run
     ```
-    conda create -n yourenvname python=3.7.4 anaconda
+    conda env create -f environment.yml 
     ```
     to use the environment
     ```
     conda activate yourenvname
     ```
-  * Python packages from requirements.txt
-    
-    After activating the envioronment
-    ```
-    cd pojectPath
-    pip install -r requirements.txt
-    ```
+## Running the app:
+  * To create the optimal solution for /data/orders.csv run the following code in the project folder
+  ```
+  python backend.py
+  ```
+  * To run the server application with generated data
+  ```
+  python Frontend/app.py
+  ```
+  You will be prompted about the port on which the server oparates (default localhost:8050)
+  To login as an admin enter:
+  login: Admin
+  password: test123
+
