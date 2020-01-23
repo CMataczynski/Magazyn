@@ -35,6 +35,8 @@ git clone https://github.com/MaczekO/Magazyn.git projectfolder
   ```
   You will be prompted about the port on which the server oparates (default localhost:8050)
   To login as an admin enter:
+  
   login: Admin
+  
   password: test123
 
