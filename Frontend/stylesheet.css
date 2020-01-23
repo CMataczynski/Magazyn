@@ -1,0 +1,70 @@
+* {
+    margin:0 ;
+    padding: 0;
+}
+
+
+.banner {
+    height: 30px;
+    background-color: rgb(145, 16, 16);
+    border-radius: 2px;
+    padding:10px;
+    position: relative;
+    overflow:hidden;
+}
+.banner h2{
+float:left;
+color:white;
+}
+.banner H3 {
+float:right;
+
+}
+.logout_button{
+    position: relative;
+    float:right;
+    bottom:15px;
+    right:10px;
+    height:100px
+}
+
+.dash-logout-btn {
+    margin-top: 5px;
+    background-color: darkred;
+    border: none;
+}
+
+.dash-logout-btn:hover {
+    background-color: brown;
+    border:none;
+}
+
+.image {
+    float:left;
+    width:50%;
+}
+.Dropdowns{
+    width:50%;
+    display:inline-block;
+    margin-top:30px;
+}
+.dropdown1 {
+    width:50%;
+    display: block;
+    float:left;
+}
+.dropdown2 {
+    width:50%;
+    display: block;
+    float: left;
+}
+.table {
+    padding-top: 60px;
+    float:left;
+    width: 50%;
+}
+.Data{
+    width:95%;
+    padding-left: 10px;
+    /*padding-right: 10px;*/
+}
